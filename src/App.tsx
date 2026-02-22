@@ -1,11 +1,11 @@
 import './App.css'
+import { StarMap } from './components/StarMap'
 
 function App() {
-
   return (
-    <>
-      <h1>Hello World</h1>
-    </>
+    <div className="starwalker-app">
+      <StarMap />
+    </div>
   )
 }
 
