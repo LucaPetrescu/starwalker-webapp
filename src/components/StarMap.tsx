@@ -15,7 +15,7 @@ import {
   updateCameraAspect,
   resizeRenderer,
 } from '@/utils/threeHelpers';
-import useLocation from '@/hooks/useLocation';
+import type { StarMapProps } from '@/types';
 
 const DOME_RADIUS = 500;
 const STAR_COUNT = 12000;
@@ -23,7 +23,7 @@ const MIN_STAR_SIZE = 0.4;
 const MAX_STAR_SIZE = 3.5;
 const ROTATION_SENSITIVITY = 0.004;
 
-export function StarMap() {
+export function StarMap({ onViewDirectionChange }: StarMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -34,24 +34,58 @@ export function StarMap() {
   const isDraggingRef = useRef(false);
   const prevMouseRef = useRef({ x: 0, y: 0 });
   const rotationRef = useRef({ x: 0, y: 0 });
+  const viewDirectionRef = useRef(new THREE.Vector3());
+  const viewQuatRef = useRef(new THREE.Quaternion());
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     isDraggingRef.current = true;
     prevMouseRef.current = { x: e.clientX, y: e.clientY };
   }, []);
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current || !skyGroupRef.current) return;
-    const dx = e.clientX - prevMouseRef.current.x;
-    const dy = e.clientY - prevMouseRef.current.y;
-    prevMouseRef.current = { x: e.clientX, y: e.clientY };
-    rotationRef.current.y += dx * ROTATION_SENSITIVITY;
-    rotationRef.current.x += dy * ROTATION_SENSITIVITY;
-    rotationRef.current.x = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, rotationRef.current.x));
-    skyGroupRef.current.rotation.order = 'YXZ';
-    skyGroupRef.current.rotation.y = rotationRef.current.y;
-    skyGroupRef.current.rotation.x = rotationRef.current.x;
-  }, []);
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isDraggingRef.current || !skyGroupRef.current) return;
+      const dx = e.clientX - prevMouseRef.current.x;
+      const dy = e.clientY - prevMouseRef.current.y;
+      prevMouseRef.current = { x: e.clientX, y: e.clientY };
+      rotationRef.current.y += dx * ROTATION_SENSITIVITY;
+      rotationRef.current.x += dy * ROTATION_SENSITIVITY;
+      rotationRef.current.x = Math.max(
+        -Math.PI / 2 + 0.01,
+        Math.min(Math.PI / 2 - 0.01, rotationRef.current.x),
+      );
+      skyGroupRef.current.rotation.order = 'YXZ';
+      skyGroupRef.current.rotation.y = rotationRef.current.y;
+      skyGroupRef.current.rotation.x = rotationRef.current.x;
+
+      if (onViewDirectionChange) {
+        const skyGroup = skyGroupRef.current;
+        const dir = viewDirectionRef.current;
+        const quat = viewQuatRef.current;
+
+        dir.set(0, 0, -1);
+        skyGroup.getWorldQuaternion(quat);
+        quat.invert();
+        dir.applyQuaternion(quat);
+        dir.normalize();
+
+        const phi = Math.acos(THREE.MathUtils.clamp(dir.z, -1, 1));
+        const theta = Math.atan2(dir.y, dir.x);
+        const skyLongitude = (THREE.MathUtils.radToDeg(theta) + 360) % 360;
+        const skyLatitude = 90 - THREE.MathUtils.radToDeg(phi);
+
+        const bearingRaw = THREE.MathUtils.radToDeg(rotationRef.current.y);
+        const bearing = ((bearingRaw % 360) + 360) % 360;
+
+        onViewDirectionChange({
+          bearing,
+          skyLongitude,
+          skyLatitude,
+        });
+      }
+    },
+    [onViewDirectionChange],
+  );
 
   const handlePointerUp = useCallback(() => {
     isDraggingRef.current = false;
@@ -60,8 +94,6 @@ export function StarMap() {
   const handlePointerLeave = useCallback(() => {
     isDraggingRef.current = false;
   }, []);
-
-  const location = useLocation();
 
   useEffect(() => {
     const container = containerRef.current;
