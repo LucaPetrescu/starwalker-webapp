@@ -92,6 +92,16 @@ export interface StarMapProps {
   config?: Partial<StarConfig>;
   /** Whether to show loading state */
   showLoading?: boolean;
+  /** Satellites to render as trajectory lines + markers on the dome */
+  satellites?: import('./satellite').SatelliteData[];
+  /** ID of the currently selected satellite */
+  selectedSatelliteId?: string | null;
+  /** Fired when the user clicks a satellite marker */
+  onSatelliteClick?: (id: string) => void;
+  /** Observer's geographic latitude (for azimuth/elevation projection) */
+  observerLat?: number;
+  /** Observer's geographic longitude */
+  observerLon?: number;
 }
 
 /**

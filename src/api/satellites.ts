@@ -1,16 +1,19 @@
-import type { SatellitesAboveData, SatelliteData } from '@/types';
+import type { SatellitesAboveData, SatelliteData } from "@/types";
 
 /**
  * Base path for starwalker-platform SatelliteController.
  * Backend uses EarthObserverConstants (fixed lat/lon, 70° radius) until
  * it accepts observer lat/lon as query params.
  */
-const BASE_PATH = '/api/satellites';
+const BASE_PATH = "http://localhost:8080/api/satellites";
 
-async function fetchJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+async function fetchJson<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T> {
   const res = await fetch(input, init);
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
+    const text = await res.text().catch(() => "");
     throw new Error(text || `Request failed with status ${res.status}`);
   }
   return res.json() as Promise<T>;
@@ -23,7 +26,9 @@ export async function fetchSatellitesAbove(): Promise<SatellitesAboveData> {
 
 /** GET /api/satellites/closest-satellites-above – 12 closest by altitude */
 export async function fetchClosestSatellitesAbove(): Promise<SatellitesAboveData> {
-  return fetchJson<SatellitesAboveData>(`${BASE_PATH}/closest-satellites-above`);
+  return fetchJson<SatellitesAboveData>(
+    `${BASE_PATH}/closest-satellites-above`,
+  );
 }
 
 /** GET /api/satellites/{satelliteId}/{seconds} – positions for a single satellite */
@@ -33,4 +38,3 @@ export async function fetchSatelliteData(
 ): Promise<SatelliteData> {
   return fetchJson<SatelliteData>(`${BASE_PATH}/${satelliteId}/${seconds}`);
 }
-

@@ -1,72 +1,244 @@
+/* ========================================
+ * Google Fonts
+ * Inter (UI) + JetBrains Mono (telemetry)
+ * ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Design system tokens */
+@import './styles/design-tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* ========================================
+ * GLOBAL RESET & BASE
+ * ======================================== */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  width: 100%;
-  height: 100%;
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-void);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color-scheme: dark;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ========================================
+ * FOCUS STATES
+ * All interactive elements use a consistent teal ring
+ * ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+/* Remove default focus ring for mouse/touch users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ========================================
+ * SCROLLBAR STYLING
+ * Dark, thin, matches the panel surface
+ * ======================================== */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(62, 207, 207, 0.18);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(62, 207, 207, 0.32);
+}
+
+/* ========================================
+ * UTILITY CLASSES
+ * Reusable across all overlay components
+ * ======================================== */
+
+/* Glass panel — the foundational overlay surface */
+.glass-panel {
+  background: var(--color-bg-panel);
+  backdrop-filter: blur(var(--blur-panel));
+  -webkit-backdrop-filter: blur(var(--blur-panel));
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+  border-radius: var(--radius-lg);
+}
+
+/* Label pill — used for status badges, category tags */
+.label-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1.4;
+}
+
+/* Data row — key/value pair in telemetry display */
+.data-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.data-row:last-child {
+  border-bottom: none;
+}
+
+.data-row__key {
+  font-size: var(--text-caption);
+  color: var(--color-text-dim);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.data-row__value {
+  font-size: var(--text-mono);
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+  text-align: right;
+  word-break: break-all;
+}
+
+/* Live indicator dot */
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  animation: blink-live 2s ease-in-out infinite;
+}
+
+/* Section divider with optional label */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0 var(--space-2);
+}
+
+.section-divider__line {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+.section-divider__label {
+  font-size: var(--text-caption);
+  color: var(--color-text-dim);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ========================================
+ * ICON BUTTON
+ * ======================================== */
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.icon-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
+}
+
+.icon-btn:active {
+  background: var(--color-bg-active);
+}
+
+/* ========================================
+ * TOGGLE BUTTON
+ * ======================================== */
+
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body-sm);
+  font-family: var(--font-ui);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.toggle-btn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-active);
+  background: var(--color-bg-hover);
+}
+
+.toggle-btn.is-active {
+  color: var(--color-primary);
+  border-color: var(--color-border-active);
+  background: var(--color-primary-muted);
+}
+
+.toggle-btn.is-active:hover {
+  background: rgba(62, 207, 207, 0.20);
 }
